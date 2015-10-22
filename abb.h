@@ -30,11 +30,6 @@ abb_nodo_t* abb_nodo_crear(const char* clave, void* dato);
 // Post: Devuelve un nuevo árbol vacío.
 abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato);
 
-// Función que busca recursivamente la ubicación donde guardar el nodo, y lo guarda.
-// Pre: El árbol existe.
-// Post: Devuelve TRUE si pudo guardar el nodo, FALSE si no.
-bool abb_guardar_r(abb_t *arbol, abb_nodo_t* raiz, const char *clave, void *dato);
-
 // Guarda una clave en el árbol
 // Pre: El árbol existe.
 // Post: Devuelve TRUE si pudo guardar la clave, FALSE si no.
@@ -44,11 +39,6 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato);
 // Pre: El árbol existe.
 // Post: Devuelve el dato asociado a la clave borrada (si existe), NULL si no existe.
 void *abb_borrar(abb_t *arbol, const char *clave);
-
-// Busca una clave en un árbol recursivamente.
-// Pre: Ninguna.
-// Post: Devuelve el nodo buscado (si existe), NULL si no existe.
-abb_nodo_t *abb_buscar_r(const abb_t *arbol, abb_nodo_t* nodo, const char *clave);
 
 // Obtiene el dato asociado a una clave del árbol.
 // Pre: El árbol existe.
