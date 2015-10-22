@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "abb.h"
+#include "pila.h"
 
 struct abb_nodo {
 	const char* clave;
@@ -13,8 +14,8 @@ struct abb_nodo {
 struct abb {
 	abb_nodo_t* raiz;
 	size_t cantidad;
-	abb_comparar_clave_t* comparar;
-	abb_destruir_dato_t* destruir;
+	abb_comparar_clave_t comparar;
+	abb_destruir_dato_t destruir;
 };
 
 // Crea una copia de la clave pasada por parametro
@@ -59,8 +60,8 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato) {
 	if (!abb) return NULL;
 	abb->raiz = NULL;
 	abb->cantidad = 0;
-	abb->comparar = &cmp;
-	abb->destruir = &destruir_dato;
+	abb->comparar = cmp;
+	abb->destruir = destruir_dato;
 	return abb;
 }
 
@@ -121,18 +122,16 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato) {
 // Pre: El árbol existe.
 // Post: Devuelve el dato asociado a la clave borrada (si existe), NULL si no existe.
 void *abb_borrar(abb_t *arbol, const char *clave) {
-	if (!arbol) return NULL;
-	if (!abb_pertenece(arbol, clave)) return NULL;
-	//else return abb_borrar_r(arbol->raiz, NULL, 0, clave, arbol);
+	return NULL;
 }
 
 // Busca una clave en un árbol recursivamente.
 // Pre: Ninguna.
 // Post: Devuelve el nodo buscado (si existe), NULL si no existe.
 abb_nodo_t *abb_buscar_r(const abb_t *arbol, abb_nodo_t* nodo, const char *clave) {
-	int r = arbol->comparar(nodo->clave, clave);
 	// Si el nodo es NULL, llegué al final del árbol y no lo encontré
 	if (!nodo) return NULL;
+	int r = arbol->comparar(nodo->clave, clave);
 	// Si las claves son iguales, devuelvo el dato asociado al nodo
 	if (r == 0) return nodo;
 	// Si la clave del nodo es menor a la del parámetro, busco por la derecha
@@ -169,41 +168,90 @@ size_t abb_cantidad(abb_t *arbol) {
 	return arbol->cantidad;
 }
 
+// Función recursiva para destruir el contenido de un árbol.
+// Pre: El árbol existe.
+// Post: Se destruyó el contenido del árbol.
+void abb_destruir_r(abb_nodo_t* nodo, abb_destruir_dato_t destruir){
+	if (nodo->izq) abb_destruir_r(nodo->izq, destruir);
+	if (nodo->der) abb_destruir_r(nodo->der, destruir);
+	void* dato = abb_nodo_destruir(nodo);
+	if (destruir) destruir(dato);
+	return;
+}
+
 // Destruye un árbol.
 // Pre: El árbol existe.
 // Post: Se destruyó el árbol y todo lo que contiene.
 void abb_destruir(abb_t *arbol) {
-	
+	if (!arbol) return;
+	if (arbol->raiz) abb_destruir_r(arbol->raiz, arbol->destruir);
+	free (arbol);
 }
 
 // Primitivas iterador interno
 
-void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra) {
-	
+void abb_in_order_r(abb_nodo_t* nodo, bool funcion(const char*, void*, void*), void* extra){
+	if (nodo->izq) abb_in_order_r(nodo->izq, funcion, extra);
+	funcion(nodo->clave, nodo->dato, extra);
+	if (nodo->der) abb_in_order_r(nodo->der, funcion, extra);
+	return;
+}
+
+void abb_in_order(abb_t *arbol, bool funcion(const char *, void *, void *), void *extra){
+	abb_in_order_r(arbol->raiz, funcion, extra);
+	return;
 }
 
 // Primitivas iterador externo
 
 struct abb_iter {
-	
+	pila_t* pila;
+	abb_nodo_t* actual;
 };
 
 abb_iter_t *abb_iter_in_crear(const abb_t *arbol) {
-	
+	if (!arbol) return NULL;
+    abb_iter_t* iter = malloc(sizeof(abb_iter_t));
+	if (!iter) return NULL;
+	iter->pila = pila_crear();
+	if (!iter->pila) return NULL;
+	abb_nodo_t* nodo = arbol->raiz;
+	if (arbol->raiz){
+		while (nodo->izq){
+			pila_apilar(iter->pila, nodo);
+			nodo = nodo->izq;
+		}
+	}
+	iter->actual = nodo;
+    return iter;
 }
 
 bool abb_iter_in_avanzar(abb_iter_t *iter) {
-	
+	if (abb_iter_in_al_final(iter)) return false;
+	if (!iter->actual->der)
+		iter->actual = pila_desapilar(iter->pila);
+	else{
+		iter->actual = iter->actual->der;
+		while (iter->actual->izq){
+			pila_apilar(iter->pila, iter->actual);
+			iter->actual = iter->actual->izq;
+		}
+	}
+	return true;
 }
 
 const char *abb_iter_in_ver_actual(const abb_iter_t *iter) {
-	
+	if (!iter->actual) return NULL;
+	return iter->actual->clave;
 }
 
 bool abb_iter_in_al_final(const abb_iter_t *iter) {
-	
+	if (!iter->actual) return true;
+	return false;
 }
 
 void abb_iter_in_destruir(abb_iter_t* iter) {
-	
+	pila_destruir(iter->pila);
+	free(iter);
+	return;
 }
