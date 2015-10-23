@@ -4,7 +4,7 @@
 EXEC=abb
 CC=gcc
 CFLAGS= -std=c99 -g -Wall -Wconversion -Wtype-limits -pedantic -Werror
-OBJECTS=abb.o pila.o pruebas_alumno.o
+OBJECTS=main.o abb.o pila.o pruebas_alumno.o testing.o
 VALGRIND= valgrind --leak-check=full --track-origins=yes
 
 all: $(EXEC)
