@@ -1,5 +1,5 @@
-#ifndef LISTA_H
-#define LISTA_H
+#ifndef ABB_H
+#define ABB_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -7,8 +7,6 @@
 /* ******************************************************************
  *                DEFINICION DE LOS TIPOS DE DATOS
  * *****************************************************************/
-
-typedef struct abb_nodo abb_nodo_t;
 
 typedef struct abb abb_t;
 
@@ -20,11 +18,6 @@ typedef void (*abb_destruir_dato_t) (void *);
  *                  PRIMITIVAS BÁSICAS DEL ÁRBOL
  * *****************************************************************/
 
-// Crea un nuevo nodo del árbol
-// Pre: Ninguna.
-// Post: Devuelve un nuevo nodo hoja.
-abb_nodo_t* abb_nodo_crear(const char* clave, void* dato);
- 
 // Crea un nuevo árbol
 // Pre: Ninguna.
 // Post: Devuelve un nuevo árbol vacío.
@@ -82,4 +75,4 @@ bool abb_iter_in_al_final(const abb_iter_t *iter);
 
 void abb_iter_in_destruir(abb_iter_t* iter);
 
-#endif // LISTA_H
+#endif // ABB_H

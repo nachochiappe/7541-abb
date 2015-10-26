@@ -4,6 +4,8 @@
 #include "abb.h"
 #include "pila.h"
 
+typedef struct abb_nodo abb_nodo_t;
+
 struct abb_nodo {
 	const char* clave;
 	void* dato;
