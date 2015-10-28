@@ -296,6 +296,7 @@ void abb_in_order_r(abb_nodo_t* nodo, bool funcion(const char*, void*, void*), v
 }
 
 void abb_in_order(abb_t *arbol, bool funcion(const char *, void *, void *), void *extra){
+	if (!arbol || !arbol->raiz) return;
 	abb_in_order_r(arbol->raiz, funcion, extra);
 	return;
 }
